@@ -1,0 +1,44 @@
+#Useful functions for the method
+import numpy as np
+import torch
+import torch.nn as nn
+
+def get_normalized_fashion_mnist(val_size = 10000):
+    """
+    Get the Fashion MNIST dataset using torch.dataset and NORMALIZES
+    
+    Input:   val_size - how big the val set (default 10k), taken from training set, 
+                        should be. Training set is 60k. 
+                       
+    Returns: trainxs - training data (28x28 images)
+             trainys - training labels
+             valxs   - validation data (28x28 images)
+             valys   - validation labels
+             testxs  - testing data (28x28 images)
+             testys  - testing labels
+    """
+    index = 60000-val_size
+    try:
+        assert index > 30000
+    except AssertionError as e:
+        print('Validation set size must be less than 30000.')
+    
+    trainval = torchvision.datasets.FashionMNIST(root = "./data", 
+                                             train = True,
+                                             download = True, 
+                                             transform = torchvision.transforms.ToTensor())
+    test_set = torchvision.datasets.FashionMNIST(root = "./data", 
+                                             train = False, 
+                                             download = True, 
+                                             transform = torchvision.transforms.ToTensor())
+
+    #Create train/val/test xs and ys
+    trainxs = trainval.data[:index] / 255.0 #normalize
+    trainys = trainval.targets[:index]
+    #Validation set is the last 10k of the training set
+    valxs = trainval.data[index:] / 255.0 #normalize
+    valys = trainval.targets[index:]
+    testxs = test_set.data / 255.0 #normalize
+    testys = test_set.targets
+    
+    return trainxs, trainys, valxs, valys, testxs, testys
